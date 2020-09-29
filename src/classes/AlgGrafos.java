@@ -34,7 +34,7 @@ public class AlgGrafos {
     }
 
     public static void testar_nao_direcionado(){
-        Grafo g1 = new Grafo();
+        Digrafo g1 = new Digrafo();
         g1.add_vertice();
         g1.add_vertice();
         g1.add_vertice();
@@ -47,7 +47,7 @@ public class AlgGrafos {
     }
 
     public static void testar_subjacente(){
-        Grafo g1 = new Grafo();
+        Digrafo g1 = new Digrafo();
         g1.add_vertice();
         g1.add_vertice();
         g1.add_vertice();
@@ -184,7 +184,7 @@ public class AlgGrafos {
     }
 
     public static void testar_ordenacao_topologica(){
-        Grafo grafo = new Grafo();
+        Digrafo grafo = new Digrafo();
         grafo.add_vertice();
         grafo.add_vertice();
         grafo.add_vertice();

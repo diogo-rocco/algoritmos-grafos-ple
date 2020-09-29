@@ -140,18 +140,25 @@ public class Digrafo {
         return abl;
     }
 
-    //TODO BUSCA EM PROFUNDIDADE
-    public void busca_profundidade(){
+    public void busca_profundidade(List<Vertice> ordenacao){
+        if(ordenacao==null){
+            ordenacao = new ArrayList<Vertice>();
+            ordenacao.addAll(this.lista_vertices.values());
+        }
         this.aciclico = true;
         for(Vertice v: this.lista_vertices.values())
             v.pai = null;
         this.tempo = 0;
 
-        for(Vertice v1: this.lista_vertices.values())
+        for(Vertice v1: ordenacao)
             if(v1.pai == null) {
                 v1.pai = v1;
                 visitar_busca_profundidade(v1);
             }
+    }
+
+    public void busca_profundidade(){
+        this.busca_profundidade(null);
     }
 
     protected void visitar_busca_profundidade(Vertice v1){
@@ -171,13 +178,13 @@ public class Digrafo {
         v1.tempo_exploracao_bp = ++tempo;
     }
 
-    public void ordenacao_topologica() {
+    public List<Vertice> ordenacao_topologica() {
         if(this.aciclico == null)
             this.busca_profundidade();
 
         if(!this.aciclico){
             System.out.println("O grafo contém ciclo");
-            return;
+            return null;
         }
 
         List<Vertice> ordem_topologica = new ArrayList<>(this.lista_vertices.values());
@@ -186,6 +193,24 @@ public class Digrafo {
         System.out.println("Ordenação Topológica:");
         for(Vertice v: ordem_topologica)
             System.out.println("id: " + v.id + " ordem de exploração: " + v.tempo_exploracao_bp);
+
+        return ordem_topologica;
+    }
+
+    public Digrafo reverte(){
+        Digrafo digrafo_reverso = new Digrafo();
+        for (Vertice v: this.lista_vertices.values())
+            digrafo_reverso.add_vertice(v.id);
+
+        for (Vertice v1: this.lista_vertices.values())
+            for (Vertice v2: v1.get_adj().values())
+                digrafo_reverso.add_arco(v2.id, v1.id);
+
+        return digrafo_reverso;
+    }
+
+    public void componentes_fortemente_conexas(){
+
     }
 
     public void print() {

@@ -5,7 +5,7 @@ import java.util.*;
 public class AlgGrafos {
     public static void main(String args[]){
 
-        testar_ordenacao_topologica();
+        testar_revete();
     }
     public Integer inteito = 1;
     public static void printar_exemplo(){
@@ -200,5 +200,24 @@ public class AlgGrafos {
         grafo.print();
 
         grafo.ordenacao_topologica();
+    }
+
+    public static void testar_revete(){
+        Digrafo grafo = new Digrafo();
+        grafo.add_vertice();
+        grafo.add_vertice();
+        grafo.add_vertice();
+        grafo.add_vertice();
+
+        grafo.add_arco(1,2);
+        grafo.add_arco(1,3);
+        //grafo.add_arco(2,3);
+        grafo.add_arco(3,2);
+        grafo.add_arco(2,4);
+        grafo.add_arco(3,4);
+
+        grafo.print();
+
+        grafo.reverte().print();
     }
 }

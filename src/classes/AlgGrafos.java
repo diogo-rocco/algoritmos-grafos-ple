@@ -5,7 +5,7 @@ import java.util.*;
 public class AlgGrafos {
     public static void main(String args[]){
 
-        testar_revete();
+        testar_CFC();
     }
     public Integer inteito = 1;
     public static void printar_exemplo(){
@@ -219,5 +219,24 @@ public class AlgGrafos {
         grafo.print();
 
         grafo.reverte().print();
+    }
+
+    public static void testar_CFC(){
+        Digrafo grafo = new Digrafo();
+        grafo.add_vertice();
+        grafo.add_vertice();
+        grafo.add_vertice();
+        grafo.add_vertice();
+        grafo.add_vertice();
+
+        grafo.add_arco(1,2);
+        grafo.add_arco(2,3);
+        grafo.add_arco(2,5);
+        grafo.add_arco(3,4);
+        grafo.add_arco(4,3);
+        grafo.add_arco(5,1);
+
+
+        grafo.componentes_fortemente_conexas();
     }
 }

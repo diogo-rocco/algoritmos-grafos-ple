@@ -141,25 +141,27 @@ public class Digrafo {
     }
 
     public void busca_profundidade(List<Vertice> ordenacao){
+        List<Vertice> ordem_vertices = new ArrayList<>(); //essa variavel vai armazenar os vértices referentes ao grafo, pois em ordenação, podem haver vértices de outro grafo
         if(ordenacao==null){
-            ordenacao = new ArrayList<Vertice>();
-            ordenacao.addAll(this.lista_vertices.values());
+            ordem_vertices.addAll(this.lista_vertices.values());
         }
+        else
+            for(Vertice v: ordenacao)
+                ordem_vertices.add(this.lista_vertices.get(v.id));
+
         this.aciclico = true;
         for(Vertice v: this.lista_vertices.values())
             v.pai = null;
         this.tempo = 0;
 
-        for(Vertice v1: ordenacao)
+        for(Vertice v1: ordem_vertices)
             if(v1.pai == null) {
                 v1.pai = v1;
                 visitar_busca_profundidade(v1);
             }
     }
 
-    public void busca_profundidade(){
-        this.busca_profundidade(null);
-    }
+    public void busca_profundidade(){ this.busca_profundidade(null); }
 
     protected void visitar_busca_profundidade(Vertice v1){
         v1.tempo_insersao_bp = ++this.tempo;
@@ -209,8 +211,28 @@ public class Digrafo {
         return digrafo_reverso;
     }
 
-    public void componentes_fortemente_conexas(){
+    public List<Vertice> get_lista_raizes(){
+        List<Vertice> lista_raizes = new ArrayList<>();
+        for (Vertice v: this.lista_vertices.values()) {
+            v.raiz = v.get_raiz();
+            if (v.pai == v)
+                lista_raizes.add(v);
+        }
+        return lista_raizes;
+    }
 
+    public void componentes_fortemente_conexas(){
+        Digrafo grafo_reverso = this.reverte();
+        grafo_reverso.busca_profundidade(this.ordenacao_topologica());
+
+        List<Vertice> lista_raizes = grafo_reverso.get_lista_raizes();
+
+        for(Vertice raiz: lista_raizes){
+            System.out.println("CFC:");
+            for(Vertice v: grafo_reverso.lista_vertices.values())
+                if(v.raiz == raiz)
+                    v.print();
+        }
     }
 
     public void print() {

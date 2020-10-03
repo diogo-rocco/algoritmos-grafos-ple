@@ -8,7 +8,7 @@ import java.util.List;
 public class Digrafo {
     private HashMap<Integer, Vertice> lista_vertices;
     public Digrafo() { lista_vertices = new HashMap<Integer, Vertice>(); }
-    protected Boolean aciclico = null;
+    protected Boolean aciclico = null, clique = null;
     public Integer tempo;
 
     protected void add_vertice() {
@@ -233,6 +233,19 @@ public class Digrafo {
                 if(v.raiz == raiz)
                     v.print();
         }
+    }
+
+    public Boolean eh_clique(){
+        if (this.clique != null)
+            return this.clique;
+
+        this.clique = true;
+        int grau_clique = this.lista_vertices.size()-1;
+        for (Vertice v: this.lista_vertices.values())
+            if (v.grau < grau_clique)
+                this.clique = false;
+
+        return this.clique;
     }
 
     public void print() {

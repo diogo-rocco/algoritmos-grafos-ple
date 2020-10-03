@@ -5,7 +5,7 @@ import java.util.*;
 public class AlgGrafos {
     public static void main(String args[]){
 
-        testar_CFC();
+        testar_clique();
     }
     public Integer inteito = 1;
     public static void printar_exemplo(){
@@ -238,5 +238,35 @@ public class AlgGrafos {
 
 
         grafo.componentes_fortemente_conexas();
+    }
+
+    public static void testar_clique(){
+        Grafo clique = new Grafo();
+        Grafo nao_clique = new Grafo();
+
+        clique.add_vertice();
+        clique.add_vertice();
+        clique.add_vertice();
+        clique.add_vertice();
+
+        nao_clique.add_vertice();
+        nao_clique.add_vertice();
+        nao_clique.add_vertice();
+        nao_clique.add_vertice();
+
+        clique.add_aresta(1,2);
+        clique.add_aresta(1,3);
+        clique.add_aresta(1,4);
+        clique.add_aresta(2,3);
+        clique.add_aresta(2,4);
+        clique.add_aresta(3,4);
+
+        nao_clique.add_aresta(1,2);
+        nao_clique.add_aresta(2,3);
+        nao_clique.add_aresta(3,4);
+        nao_clique.add_aresta(1,4);
+
+        System.out.println("clique do que tem que dar true: " + clique.eh_clique());
+        System.out.println("clique do que tem que dar false: " + nao_clique.eh_clique());
     }
 }

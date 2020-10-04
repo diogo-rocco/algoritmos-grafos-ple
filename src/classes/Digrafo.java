@@ -4,12 +4,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.io.File;  // Import the File class
+import java.io.FileNotFoundException;  // Import this class to handle errors
+import java.util.Scanner; // Import the Scanner class to read text files
 
 public class Digrafo {
     private HashMap<Integer, Vertice> lista_vertices;
     public Digrafo() { lista_vertices = new HashMap<Integer, Vertice>(); }
-    protected Boolean aciclico = null, clique = null;
+    protected Boolean aciclico = null, clique = null, conjunto_independente = null, split = null;
     public Integer tempo;
+    private Digrafo maior_clique = null;
 
     protected void add_vertice() {
         Vertice v = new Vertice( lista_vertices.size()+1 );
@@ -242,10 +246,91 @@ public class Digrafo {
         this.clique = true;
         int grau_clique = this.lista_vertices.size()-1;
         for (Vertice v: this.lista_vertices.values())
-            if (v.grau < grau_clique)
+            if (v.grau < grau_clique) {
                 this.clique = false;
+                break;
+            }
 
         return this.clique;
+    }
+
+    public Boolean eh_conjunto_independente(){
+        if (this.conjunto_independente != null)
+            return this.conjunto_independente;
+
+        this.conjunto_independente = true;
+        for (Vertice v: this.lista_vertices.values())
+            if (v.get_adj().size() != 0)
+                this.conjunto_independente = false;
+
+        return this.conjunto_independente;
+    }
+
+    public Boolean eh_split(){
+        int tamanho_maximo_subgrafo = this.grau_max() + 1;
+        int tamanho_subgrafo = 1;
+
+        while (tamanho_subgrafo <= tamanho_maximo_subgrafo){
+            pegar_clique_do_subgrafo(tamanho_subgrafo);
+            tamanho_subgrafo++;
+        }
+
+        Digrafo candidato_conjunto_independente = this.clone();
+        for (Vertice vertice_do_clique: this.maior_clique.lista_vertices.values())
+            candidato_conjunto_independente.remove_vertice(vertice_do_clique.id);
+
+        System.out.println("Clique:");
+        this.maior_clique.print();
+        if (!candidato_conjunto_independente.eh_conjunto_independente()) {
+            System.out.println("Não há conjunto independente");
+            return false;
+        }
+        System.out.println("\nConjunto Independete:");
+        candidato_conjunto_independente.print();
+        System.out.println("\nÉ Split");
+        return true;
+    }
+
+    public void pegar_clique_do_subgrafo(int tamanho_combinacao){
+
+        Vertice[] vertices_do_grafo = this.lista_vertices.values().toArray(new Vertice[0]);
+        int posicao_inicial = 0;
+        Vertice[] vertices_da_combinacao = new Vertice[tamanho_combinacao];
+
+        for (int i = posicao_inicial; i <= vertices_do_grafo.length-tamanho_combinacao; i++){
+            vertices_da_combinacao[vertices_da_combinacao.length - tamanho_combinacao] = vertices_do_grafo[i];
+            pegar_clique_do_subgrafo(vertices_do_grafo, tamanho_combinacao-1, i+1, vertices_da_combinacao);
+        }
+    }
+
+    public void pegar_clique_do_subgrafo(Vertice[] vertices_do_grafo, int tamanho_combinacao, int startPosition, Vertice[] vertices_da_combinacao){
+        /*
+        nesse looping é que vamos encontrar se o subgrafo é ou não um clique
+        ->  para gerar o subgrafo, eu estou usando o candidato_de_clique, nela eu salvo uma cópi dos vértices contendo só as arestas que ligam à vertices
+            que existam no candidato_de_clique
+         */
+        if (tamanho_combinacao == 0){
+            Digrafo candidato_de_clique = new Digrafo();
+
+            for(Vertice v: vertices_da_combinacao)
+                candidato_de_clique.add_vertice(v.id);
+
+            for(Vertice v1: candidato_de_clique.lista_vertices.values()){
+                Vertice vertice_no_grafo = this.lista_vertices.get(v1.id);
+                for(Vertice v2: vertice_no_grafo.get_adj().values())
+                    if (candidato_de_clique.lista_vertices.containsKey(v2.id))
+                        candidato_de_clique.add_arco(v1.id, v2.id);
+            }
+
+            if (candidato_de_clique.eh_clique()) this.maior_clique = candidato_de_clique;
+
+            return;
+        }
+
+        for (int i = startPosition; i <= vertices_do_grafo.length-tamanho_combinacao; i++){
+            vertices_da_combinacao[vertices_da_combinacao.length - tamanho_combinacao] = vertices_do_grafo[i];
+            pegar_clique_do_subgrafo(vertices_do_grafo, tamanho_combinacao-1, i+1, vertices_da_combinacao);
+        }
     }
 
     public void print() {
@@ -267,5 +352,20 @@ public class Digrafo {
             }
         }
         return copia;
+    }
+
+    public static void ler_arquivo(String nome_arquivo) {
+        try {
+            File entrada = new File(nome_arquivo);
+            Scanner leitor = new Scanner(entrada);
+            while (leitor.hasNextLine()) {
+                String dados = leitor.nextLine();
+                System.out.println(dados);
+            }
+            leitor.close();
+        } catch (FileNotFoundException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
     }
 }

@@ -5,7 +5,7 @@ import java.util.*;
 public class AlgGrafos {
     public static void main(String args[]){
 
-        testar_clique();
+        testar_combination();
     }
     public Integer inteito = 1;
     public static void printar_exemplo(){
@@ -268,5 +268,30 @@ public class AlgGrafos {
 
         System.out.println("clique do que tem que dar true: " + clique.eh_clique());
         System.out.println("clique do que tem que dar false: " + nao_clique.eh_clique());
+    }
+
+    public static void testar_combination(){
+        Grafo clique = new Grafo();
+
+        clique.add_vertice();
+        clique.add_vertice();
+        clique.add_vertice();
+        clique.add_vertice();
+        clique.add_vertice();
+        clique.add_vertice();
+
+
+        clique.add_aresta(1,3);
+        clique.add_aresta(1,4);
+        clique.add_aresta(1,5);
+        clique.add_aresta(3,4);
+        clique.add_aresta(3,5);
+        clique.add_aresta(4,5);
+        clique.add_aresta(5,6);
+        clique.add_aresta(4,6);
+        clique.add_aresta(2,3);
+        clique.add_aresta(3,6);
+
+        clique.eh_split();
     }
 }

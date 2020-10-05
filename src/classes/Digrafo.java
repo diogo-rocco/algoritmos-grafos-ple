@@ -363,16 +363,20 @@ public class Digrafo {
 
             while (leitor.hasNextLine()) {
                 String dados = leitor.nextLine();
-                String[] vertice_e_adjacencias = dados.split(" = ");
+                String[] vertice_e_adjacencias;
+                if (dados.contains(" = ")) vertice_e_adjacencias = dados.split(" = ");
+                else vertice_e_adjacencias = dados.split(" =");
 
                 String string_vertice_id = vertice_e_adjacencias[0];
+                string_vertice_id = string_vertice_id.replace(" ","");
+                System.out.println(string_vertice_id);
                 int vertice_id = Integer.parseInt(string_vertice_id);
                 String string_adjacencias = null;
 
                 if (vertice_e_adjacencias.length>1)
                     string_adjacencias = vertice_e_adjacencias[1];
 
-                //System.out.print("Vertice " + vertice_id + " -> ");
+                System.out.print(vertice_e_adjacencias);
 
                 this.add_vertice(vertice_id);
                 support_map.put(this.lista_vertices.get(vertice_id), string_adjacencias);

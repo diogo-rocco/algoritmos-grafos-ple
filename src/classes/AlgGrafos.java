@@ -303,7 +303,7 @@ public class AlgGrafos {
     }
 
     public static void testar_split(){
-        Grafo grafo = new Grafo();
+        Digrafo grafo = new Digrafo();
         grafo.ler_arquivo("entrada-split.txt");
         grafo.print();
         grafo.eh_split();

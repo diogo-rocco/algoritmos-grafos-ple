@@ -4,12 +4,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.io.File;  // Import the File class
+import java.io.FileNotFoundException;  // Import this class to handle errors
+import java.util.Scanner; // Import the Scanner class to read text files
 
 public class Digrafo {
-    private HashMap<Integer, Vertice> lista_vertices;
+    protected HashMap<Integer, Vertice> lista_vertices;
     public Digrafo() { lista_vertices = new HashMap<Integer, Vertice>(); }
-    protected Boolean aciclico = null;
+    protected Boolean aciclico = null, clique = null, conjunto_independente = null, split = null;
     public Integer tempo;
+    private Digrafo maior_clique = null;
 
     protected void add_vertice() {
         Vertice v = new Vertice( lista_vertices.size()+1 );
@@ -140,19 +144,28 @@ public class Digrafo {
         return abl;
     }
 
-    //TODO BUSCA EM PROFUNDIDADE
-    public void busca_profundidade(){
+    public void busca_profundidade(List<Vertice> ordenacao){
+        List<Vertice> ordem_vertices = new ArrayList<>(); //essa variavel vai armazenar os vértices referentes ao grafo, pois em ordenação, podem haver vértices de outro grafo
+        if(ordenacao==null){
+            ordem_vertices.addAll(this.lista_vertices.values());
+        }
+        else
+            for(Vertice v: ordenacao)
+                ordem_vertices.add(this.lista_vertices.get(v.id));
+
         this.aciclico = true;
         for(Vertice v: this.lista_vertices.values())
             v.pai = null;
         this.tempo = 0;
 
-        for(Vertice v1: this.lista_vertices.values())
+        for(Vertice v1: ordem_vertices)
             if(v1.pai == null) {
                 v1.pai = v1;
                 visitar_busca_profundidade(v1);
             }
     }
+
+    public void busca_profundidade(){ this.busca_profundidade(null); }
 
     protected void visitar_busca_profundidade(Vertice v1){
         v1.tempo_insersao_bp = ++this.tempo;
@@ -171,13 +184,13 @@ public class Digrafo {
         v1.tempo_exploracao_bp = ++tempo;
     }
 
-    public void ordenacao_topologica() {
+    public List<Vertice> ordenacao_topologica() {
         if(this.aciclico == null)
             this.busca_profundidade();
 
         if(!this.aciclico){
             System.out.println("O grafo contém ciclo");
-            return;
+            return null;
         }
 
         List<Vertice> ordem_topologica = new ArrayList<>(this.lista_vertices.values());
@@ -186,6 +199,138 @@ public class Digrafo {
         System.out.println("Ordenação Topológica:");
         for(Vertice v: ordem_topologica)
             System.out.println("id: " + v.id + " ordem de exploração: " + v.tempo_exploracao_bp);
+
+        return ordem_topologica;
+    }
+
+    public Digrafo reverte(){
+        Digrafo digrafo_reverso = new Digrafo();
+        for (Vertice v: this.lista_vertices.values())
+            digrafo_reverso.add_vertice(v.id);
+
+        for (Vertice v1: this.lista_vertices.values())
+            for (Vertice v2: v1.get_adj().values())
+                digrafo_reverso.add_arco(v2.id, v1.id);
+
+        return digrafo_reverso;
+    }
+
+    public List<Vertice> get_lista_raizes(){
+        List<Vertice> lista_raizes = new ArrayList<>();
+        for (Vertice v: this.lista_vertices.values()) {
+            v.raiz = v.get_raiz();
+            if (v.pai == v)
+                lista_raizes.add(v);
+        }
+        return lista_raizes;
+    }
+
+    public void componentes_fortemente_conexas(){
+        Digrafo grafo_reverso = this.reverte();
+        grafo_reverso.busca_profundidade(this.ordenacao_topologica());
+
+        List<Vertice> lista_raizes = grafo_reverso.get_lista_raizes();
+
+        for(Vertice raiz: lista_raizes){
+            System.out.println("CFC:");
+            for(Vertice v: grafo_reverso.lista_vertices.values())
+                if(v.raiz == raiz)
+                    v.print();
+        }
+    }
+
+    public Boolean eh_clique(){
+        if (this.clique != null)
+            return this.clique;
+
+        this.clique = true;
+        int grau_clique = this.lista_vertices.size()-1;
+        for (Vertice v: this.lista_vertices.values())
+            if (v.grau < grau_clique) {
+                this.clique = false;
+                break;
+            }
+
+        return this.clique;
+    }
+
+    public Boolean eh_conjunto_independente(){
+        if (this.conjunto_independente != null)
+            return this.conjunto_independente;
+
+        this.conjunto_independente = true;
+        for (Vertice v: this.lista_vertices.values())
+            if (v.get_adj().size() != 0)
+                this.conjunto_independente = false;
+
+        return this.conjunto_independente;
+    }
+
+    public Boolean eh_split(){
+        int tamanho_maximo_subgrafo = this.grau_max() + 1;
+        int tamanho_subgrafo = 1;
+
+        while (tamanho_subgrafo <= tamanho_maximo_subgrafo){
+            pegar_clique_do_subgrafo(tamanho_subgrafo);
+            tamanho_subgrafo++;
+        }
+
+        Digrafo candidato_conjunto_independente = this.clone();
+        for (Vertice vertice_do_clique: this.maior_clique.lista_vertices.values())
+            candidato_conjunto_independente.remove_vertice(vertice_do_clique.id);
+
+        System.out.println("Clique:");
+        this.maior_clique.print();
+        if (!candidato_conjunto_independente.eh_conjunto_independente()) {
+            System.out.println("Não há conjunto independente");
+            return false;
+        }
+        System.out.println("\nConjunto Independete:");
+        candidato_conjunto_independente.print();
+        System.out.println("\nÉ Split");
+        return true;
+    }
+
+    public void pegar_clique_do_subgrafo(int tamanho_combinacao){
+
+        Vertice[] vertices_do_grafo = this.lista_vertices.values().toArray(new Vertice[0]);
+        int posicao_inicial = 0;
+        Vertice[] vertices_da_combinacao = new Vertice[tamanho_combinacao];
+
+        for (int i = posicao_inicial; i <= vertices_do_grafo.length-tamanho_combinacao; i++){
+            vertices_da_combinacao[vertices_da_combinacao.length - tamanho_combinacao] = vertices_do_grafo[i];
+            pegar_clique_do_subgrafo(vertices_do_grafo, tamanho_combinacao-1, i+1, vertices_da_combinacao);
+        }
+    }
+
+    public void pegar_clique_do_subgrafo(Vertice[] vertices_do_grafo, int tamanho_combinacao, int startPosition, Vertice[] vertices_da_combinacao){
+        /*
+        nesse looping é que vamos encontrar se o subgrafo é ou não um clique
+        ->  para gerar o subgrafo, eu estou usando o candidato_de_clique, nela eu salvo uma cópi dos vértices contendo só as arestas que ligam à vertices
+            que existam no candidato_de_clique
+         */
+        if (tamanho_combinacao == 0){
+            Digrafo candidato_de_clique = new Digrafo();
+
+            for(Vertice v: vertices_da_combinacao)
+                candidato_de_clique.add_vertice(v.id);
+
+            for(Vertice v1: candidato_de_clique.lista_vertices.values()){
+                Vertice vertice_no_grafo = this.lista_vertices.get(v1.id);
+                for(Vertice v2: vertice_no_grafo.get_adj().values())
+                    if (candidato_de_clique.lista_vertices.containsKey(v2.id))
+                        candidato_de_clique.add_arco(v1.id, v2.id);
+            }
+
+            if (candidato_de_clique.eh_clique()) this.maior_clique = candidato_de_clique;
+
+            return;
+        }
+
+        for (int i = startPosition; i <= vertices_do_grafo.length-tamanho_combinacao; i++){
+            vertices_da_combinacao[vertices_da_combinacao.length - tamanho_combinacao] = vertices_do_grafo[i];
+            pegar_clique_do_subgrafo(vertices_do_grafo, tamanho_combinacao-1, i+1, vertices_da_combinacao);
+        }
     }
 
     public void print() {
@@ -207,5 +352,53 @@ public class Digrafo {
             }
         }
         return copia;
+    }
+
+    public void ler_arquivo(String nome_arquivo) {
+        HashMap<Vertice, String> support_map = new HashMap<>(); //vai armazenar a string de adj de cada vertice
+        String path = System.getProperty("user.dir") + "\\entradas\\";
+        try {
+            File entrada = new File(path + nome_arquivo);
+            Scanner leitor = new Scanner(entrada);
+
+            while (leitor.hasNextLine()) {
+                String dados = leitor.nextLine();
+                String[] vertice_e_adjacencias = dados.split(" = ");
+
+                String string_vertice_id = vertice_e_adjacencias[0];
+                int vertice_id = Integer.parseInt(string_vertice_id);
+                String string_adjacencias = null;
+
+                if (vertice_e_adjacencias.length>1)
+                    string_adjacencias = vertice_e_adjacencias[1];
+
+                //System.out.print("Vertice " + vertice_id + " -> ");
+
+                this.add_vertice(vertice_id);
+                support_map.put(this.lista_vertices.get(vertice_id), string_adjacencias);
+
+            }
+            leitor.close();
+        } catch (FileNotFoundException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+        adicionar_vertices_do_arquivo(support_map);
+    }
+
+    protected void adicionar_vertices_do_arquivo(HashMap<Vertice, String> support_map){
+        for (Vertice v: support_map.keySet()) {
+            String string_adjacencias = support_map.get(v);
+            String[] adjacencias;
+
+            if (string_adjacencias != null) {
+                adjacencias = string_adjacencias.split(" ");
+                for (String id_string : adjacencias) {
+                    int id = Integer.parseInt(id_string);
+                    if (this.lista_vertices.containsKey(id)) this.add_arco(v.id, id);
+                    else System.out.println("O vertice " + id_string + " não está no grafo");
+                }
+            }
+        }
     }
 }

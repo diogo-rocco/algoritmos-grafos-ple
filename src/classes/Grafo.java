@@ -1,5 +1,7 @@
 package classes;
 
+import java.util.HashMap;
+
 public class Grafo extends Digrafo{
 
     @Override
@@ -24,5 +26,22 @@ public class Grafo extends Digrafo{
                 this.aciclico = false;
         }
         v1.tempo_exploracao_bp = ++tempo;
+    }
+
+    @Override
+    protected void adicionar_vertices_do_arquivo(HashMap<Vertice, String> support_map){
+        for (Vertice v: support_map.keySet()) {
+            String string_adjacencias = support_map.get(v);
+            String[] adjacencias;
+
+            if (string_adjacencias != null) {
+                adjacencias = string_adjacencias.split(" ");
+                for (String id_string : adjacencias) {
+                    int id = Integer.parseInt(id_string);
+                    if (this.lista_vertices.containsKey(id)) this.add_aresta(v.id, id);
+                    else System.out.println("O vertice " + id_string + " não está no grafo");
+                }
+            }
+        }
     }
 }

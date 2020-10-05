@@ -5,7 +5,7 @@ import java.util.*;
 public class AlgGrafos {
     public static void main(String args[]){
 
-        testar_ordenacao_topologica();
+        testar_split();
     }
     public Integer inteito = 1;
     public static void printar_exemplo(){
@@ -200,5 +200,112 @@ public class AlgGrafos {
         grafo.print();
 
         grafo.ordenacao_topologica();
+    }
+
+    public static void testar_revete(){
+        Digrafo grafo = new Digrafo();
+        grafo.add_vertice();
+        grafo.add_vertice();
+        grafo.add_vertice();
+        grafo.add_vertice();
+
+        grafo.add_arco(1,2);
+        grafo.add_arco(1,3);
+        //grafo.add_arco(2,3);
+        grafo.add_arco(3,2);
+        grafo.add_arco(2,4);
+        grafo.add_arco(3,4);
+
+        grafo.print();
+
+        grafo.reverte().print();
+    }
+
+    public static void testar_CFC(){
+        Digrafo grafo = new Digrafo();
+        grafo.add_vertice();
+        grafo.add_vertice();
+        grafo.add_vertice();
+        grafo.add_vertice();
+        grafo.add_vertice();
+
+        grafo.add_arco(1,2);
+        grafo.add_arco(2,3);
+        grafo.add_arco(2,5);
+        grafo.add_arco(3,4);
+        grafo.add_arco(4,3);
+        grafo.add_arco(5,1);
+
+
+        grafo.componentes_fortemente_conexas();
+    }
+
+    public static void testar_clique(){
+        Grafo clique = new Grafo();
+        Grafo nao_clique = new Grafo();
+
+        clique.add_vertice();
+        clique.add_vertice();
+        clique.add_vertice();
+        clique.add_vertice();
+
+        nao_clique.add_vertice();
+        nao_clique.add_vertice();
+        nao_clique.add_vertice();
+        nao_clique.add_vertice();
+
+        clique.add_aresta(1,2);
+        clique.add_aresta(1,3);
+        clique.add_aresta(1,4);
+        clique.add_aresta(2,3);
+        clique.add_aresta(2,4);
+        clique.add_aresta(3,4);
+
+        nao_clique.add_aresta(1,2);
+        nao_clique.add_aresta(2,3);
+        nao_clique.add_aresta(3,4);
+        nao_clique.add_aresta(1,4);
+
+        System.out.println("clique do que tem que dar true: " + clique.eh_clique());
+        System.out.println("clique do que tem que dar false: " + nao_clique.eh_clique());
+    }
+
+    public static void testar_combination(){
+        Grafo clique = new Grafo();
+
+        clique.add_vertice();
+        clique.add_vertice();
+        clique.add_vertice();
+        clique.add_vertice();
+        clique.add_vertice();
+        clique.add_vertice();
+
+
+        clique.add_aresta(1,3);
+        clique.add_aresta(1,4);
+        clique.add_aresta(1,5);
+        clique.add_aresta(3,4);
+        clique.add_aresta(3,5);
+        clique.add_aresta(4,5);
+        clique.add_aresta(5,6);
+        clique.add_aresta(4,6);
+        clique.add_aresta(2,3);
+        clique.add_aresta(3,6);
+
+        clique.eh_split();
+    }
+
+    public static void testar_leitura_arquivo(){
+        Grafo grafo = new Grafo();
+
+        grafo.ler_arquivo("entrada.txt");
+        grafo.print();
+    }
+
+    public static void testar_split(){
+        Grafo grafo = new Grafo();
+        grafo.ler_arquivo("entrada-split.txt");
+        grafo.print();
+        grafo.eh_split();
     }
 }

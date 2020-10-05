@@ -8,7 +8,7 @@ public class Vertice implements Serializable, Comparable<Vertice> {
     public Integer grau;
     private Integer cor=0;
     public Integer distancia_raiz, tempo_insersao_bp, tempo_exploracao_bp = null;
-    public Vertice pai;
+    protected Vertice pai, raiz;
     private HashMap<Integer, Vertice> adj;
 
     public Vertice(int id ) {
@@ -44,6 +44,13 @@ public class Vertice implements Serializable, Comparable<Vertice> {
     }
 
     public Integer getCor(){return this.cor; }
+
+    //retorna a raiz daquele vertice na arvore de busca em profundidade
+    public Vertice get_raiz(){
+        if(this.pai == this)
+            return this;
+        else return this.pai.get_raiz();
+    }
 
     public void print() {
         System.out.print("Id do vertice = " + id + ", Vizinhança: " );

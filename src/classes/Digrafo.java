@@ -9,7 +9,7 @@ import java.io.FileNotFoundException;  // Import this class to handle errors
 import java.util.Scanner; // Import the Scanner class to read text files
 
 public class Digrafo {
-    private HashMap<Integer, Vertice> lista_vertices;
+    protected HashMap<Integer, Vertice> lista_vertices;
     public Digrafo() { lista_vertices = new HashMap<Integer, Vertice>(); }
     protected Boolean aciclico = null, clique = null, conjunto_independente = null, split = null;
     public Integer tempo;
@@ -354,18 +354,51 @@ public class Digrafo {
         return copia;
     }
 
-    public static void ler_arquivo(String nome_arquivo) {
+    public void ler_arquivo(String nome_arquivo) {
+        HashMap<Vertice, String> support_map = new HashMap<>(); //vai armazenar a string de adj de cada vertice
+        String path = System.getProperty("user.dir") + "\\entradas\\";
         try {
-            File entrada = new File(nome_arquivo);
+            File entrada = new File(path + nome_arquivo);
             Scanner leitor = new Scanner(entrada);
+
             while (leitor.hasNextLine()) {
                 String dados = leitor.nextLine();
-                System.out.println(dados);
+                String[] vertice_e_adjacencias = dados.split(" = ");
+
+                String string_vertice_id = vertice_e_adjacencias[0];
+                int vertice_id = Integer.parseInt(string_vertice_id);
+                String string_adjacencias = null;
+
+                if (vertice_e_adjacencias.length>1)
+                    string_adjacencias = vertice_e_adjacencias[1];
+
+                //System.out.print("Vertice " + vertice_id + " -> ");
+
+                this.add_vertice(vertice_id);
+                support_map.put(this.lista_vertices.get(vertice_id), string_adjacencias);
+
             }
             leitor.close();
         } catch (FileNotFoundException e) {
             System.out.println("An error occurred.");
             e.printStackTrace();
+        }
+        adicionar_vertices_do_arquivo(support_map);
+    }
+
+    protected void adicionar_vertices_do_arquivo(HashMap<Vertice, String> support_map){
+        for (Vertice v: support_map.keySet()) {
+            String string_adjacencias = support_map.get(v);
+            String[] adjacencias;
+
+            if (string_adjacencias != null) {
+                adjacencias = string_adjacencias.split(" ");
+                for (String id_string : adjacencias) {
+                    int id = Integer.parseInt(id_string);
+                    if (this.lista_vertices.containsKey(id)) this.add_arco(v.id, id);
+                    else System.out.println("O vertice " + id_string + " não está no grafo");
+                }
+            }
         }
     }
 }

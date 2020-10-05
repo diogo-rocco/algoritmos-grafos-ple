@@ -5,7 +5,7 @@ import java.util.*;
 public class AlgGrafos {
     public static void main(String args[]){
 
-        testar_combination();
+        testar_split();
     }
     public Integer inteito = 1;
     public static void printar_exemplo(){
@@ -293,5 +293,19 @@ public class AlgGrafos {
         clique.add_aresta(3,6);
 
         clique.eh_split();
+    }
+
+    public static void testar_leitura_arquivo(){
+        Grafo grafo = new Grafo();
+
+        grafo.ler_arquivo("entrada.txt");
+        grafo.print();
+    }
+
+    public static void testar_split(){
+        Grafo grafo = new Grafo();
+        grafo.ler_arquivo("entrada-split.txt");
+        grafo.print();
+        grafo.eh_split();
     }
 }
